@@ -15,7 +15,7 @@ def do_cache(maxsize):          # maxsize = 2
         def wrapper(*args):     # args = (v,i)
             if len(cache) >= maxsize:
                 # удали самый первый закешированный элемен
-                return dict(list(cache.items())[1:])
+                cache.pop(list(cache.keys())[0])
             if args in cache:
                 # вернуть элемент в кеше, не вызывая декорируемой функции
                 return cache[args]
@@ -54,8 +54,10 @@ def div100(func):
 def test2(v):
     if v % 100 == 0:
         print('We are OK!')
-    elif v%100 != 0:
+    elif v % 100 != 0:
         print(f'Bad news guys, we got {v%100}.')
+
+
 test2(225)
 
 
@@ -64,8 +66,33 @@ test2(225)
 # декорируемой функции.
 
 def count_args(func):
-    cache = dict() # этот дикт будет доступен при следующих вызовах
-    cache_count = dict() # этот дикт будет доступен при следующих вызовах
+    cache = dict()
+    cache_count = dict()
+
     def wrapper(*args):
-        # your code here
+        # my code here
+        if args in cache:
+            result = cache[args]
+        else:
+            result = func(args)
+            cache[args] = result
+
+        for args in cache:
+            if args in cache_count:
+                cache_count[args] += 1
+            else:
+                cache_count[args] = 1
+
+        return cache, cache_count
     return wrapper
+
+
+@count_args
+def my_func(string):
+    return string
+
+
+my_func('test')
+my_func('user')
+my_func('test')
+my_func('meow')
